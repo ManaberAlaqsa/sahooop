@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var t=localStorage.getItem("speedShopTheme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>العنوان والدفع — SPEED SHOP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0D1A;
+    --surface:#12162A;
+    --surface-2:#1A1F3A;
+    --line:#262C4A;
+    --text:#F2F3F8;
+    --text-dim:#9BA0C0;
+    --accent:#3D5CFF;
+    --accent-2:#00D9C0;
+    --coral:#FF6A3D;
+    --gold:#FFB020;
+    --radius-sm:10px;
+    --radius-md:16px;
+    --radius-lg:24px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Cairo', sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    padding-bottom:calc(150px + var(--safe-bottom));
+  }
+  img{max-width:100%; display:block;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; border:none; cursor:pointer; color:inherit; background:none;}
+  input, select, textarea{font-family:inherit;}
+  ::selection{background:var(--accent); color:#fff;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  /* ===== HEADER (same system as cart/home) ===== */
+  header.top{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,13,26,0.92);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-row{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 16px;
+  }
+  .icon-btn{
+    width:38px; height:38px; border-radius:12px;
+    background:var(--surface); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text); flex-shrink:0;
+  }
+  .page-title{font-weight:800; font-size:1.05rem;}
+  .page-title small{display:block; font-size:0.7rem; font-weight:500; color:var(--text-dim); margin-top:1px;}
+  .top-spacer{margin-inline-start:auto;}
+
+  /* ===== STEPS ===== */
+  .steps{display:flex; align-items:center; gap:6px; padding:12px 16px 4px;}
+  .step{display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-dim); font-weight:700;}
+  .step .dot{width:22px; height:22px; border-radius:50%; background:var(--surface); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:0.72rem;}
+  .step.active{color:var(--accent-2);}
+  .step.active .dot{background:var(--accent-2); border-color:var(--accent-2); color:#06251f; font-weight:800;}
+  .step.done{color:var(--accent-2);}
+  .step.done .dot{background:transparent; border-color:var(--accent-2); color:var(--accent-2);}
+  .step-line{flex:1; height:1px; background:var(--line); min-width:14px;}
+  .step-line.done{background:var(--accent-2);}
+
+  main{padding-top:8px;}
+  .wrap-grid{max-width:900px; margin:0 auto; padding:0 16px;}
+
+  /* ===== SECTION CARD ===== */
+  .section{
+    margin:18px 0 0; background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius-lg); padding:16px;
+  }
+  .section-head{display:flex; align-items:center; gap:8px; margin-bottom:14px;}
+  .section-head .em{font-size:1rem;}
+  .section-head h3{font-size:0.92rem; font-weight:800; flex:1;}
+  .section-head .edit-link{font-size:0.74rem; color:var(--accent-2); font-weight:700;}
+
+  /* ===== SAVED ADDRESSES ===== */
+  .addr-card{
+    display:flex; gap:10px; align-items:flex-start; background:var(--surface-2); border:1.5px solid var(--line);
+    border-radius:var(--radius-md); padding:12px; margin-bottom:10px; cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .addr-card.selected{border-color:var(--accent-2); background:rgba(0,217,192,0.06);}
+  .addr-radio{
+    width:19px; height:19px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; margin-top:2px;
+    display:flex; align-items:center; justify-content:center; transition:border-color .15s ease;
+  }
+  .addr-card.selected .addr-radio{border-color:var(--accent-2);}
+  .addr-radio .fill{width:10px; height:10px; border-radius:50%; background:var(--accent-2); opacity:0; transition:opacity .15s ease;}
+  .addr-card.selected .addr-radio .fill{opacity:1;}
+  .addr-body{flex:1; min-width:0;}
+  .addr-label{display:flex; align-items:center; gap:6px; font-size:0.84rem; font-weight:800; margin-bottom:3px;}
+  .addr-tag{font-size:0.62rem; font-weight:700; color:var(--accent-2); background:rgba(0,217,192,0.1); border-radius:6px; padding:2px 7px;}
+  .addr-detail{font-size:0.76rem; color:var(--text-dim);}
+
+  .add-addr-btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:12px; border:1.5px dashed var(--line); border-radius:var(--radius-md);
+    color:var(--accent-2); font-weight:700; font-size:0.84rem;
+  }
+
+  /* ===== NEW ADDRESS FORM ===== */
+  .addr-form{display:none; flex-direction:column; gap:10px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
+  .addr-form.open{display:flex;}
+  .field{display:flex; flex-direction:column; gap:5px;}
+  .field label{font-size:0.74rem; color:var(--text-dim); font-weight:700;}
+  .field input, .field select, .field textarea{
+    background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+    padding:11px 12px; color:var(--text); font-size:0.86rem; outline:none;
+    transition:border-color .15s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--accent);}
+  .field input::placeholder, .field textarea::placeholder{color:var(--text-dim);}
+  .field textarea{resize:vertical; min-height:60px;}
+  .field-row{display:flex; gap:10px;}
+  .field-row .field{flex:1;}
+  .field-err{font-size:0.68rem; color:var(--coral); display:none;}
+  .field.invalid input, .field.invalid select{border-color:var(--coral);}
+  .field.invalid .field-err{display:block;}
+  .form-save-btn{
+    align-self:flex-start; background:var(--accent); color:#fff; font-weight:700; font-size:0.82rem;
+    padding:10px 18px; border-radius:10px; margin-top:4px;
+  }
+
+  /* ===== PAYMENT METHODS ===== */
+  .pay-option{
+    display:flex; align-items:center; gap:12px; background:var(--surface-2); border:1.5px solid var(--line);
+    border-radius:var(--radius-md); padding:13px 14px; margin-bottom:10px; cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .pay-option.selected{border-color:var(--accent-2); background:rgba(0,217,192,0.06);}
+  .pay-option .em{font-size:1.3rem; flex-shrink:0;}
+  .pay-body{flex:1;}
+  .pay-name{font-size:0.86rem; font-weight:800;}
+  .pay-desc{font-size:0.72rem; color:var(--text-dim); margin-top:1px;}
+  .pay-radio{width:19px; height:19px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+  .pay-option.selected .pay-radio{border-color:var(--accent-2);}
+  .pay-radio .fill{width:10px; height:10px; border-radius:50%; background:var(--accent-2); opacity:0;}
+  .pay-option.selected .pay-radio .fill{opacity:1;}
+
+  .card-form{display:none; flex-direction:column; gap:10px; margin-top:4px; padding-top:14px; border-top:1px solid var(--line);}
+  .card-form.open{display:flex;}
+
+  /* ===== NOTE ===== */
+  .note-box textarea{
+    width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:10px;
+    padding:11px 12px; color:var(--text); font-size:0.84rem; outline:none; resize:vertical; min-height:56px;
+  }
+  .note-box textarea::placeholder{color:var(--text-dim);}
+
+  /* ===== SUMMARY ===== */
+  .sum-row{display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-dim); margin-bottom:9px;}
+  .sum-row b{color:var(--text); font-weight:600;}
+  .sum-row.discount b{color:var(--accent-2);}
+  .sum-divider{height:1px; background:var(--line); margin:10px 0;}
+  .sum-total{display:flex; justify-content:space-between; align-items:baseline; font-weight:800;}
+  .sum-total span{font-size:0.92rem;}
+  .sum-total b{font-size:1.3rem; color:var(--accent-2);}
+  .sum-items-toggle{font-size:0.74rem; color:var(--accent-2); font-weight:700; margin-top:12px; display:inline-block;}
+  .sum-items{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+  .sum-items.open{max-height:400px; margin-top:10px;}
+  .sum-item-row{display:flex; justify-content:space-between; font-size:0.76rem; color:var(--text-dim); padding:5px 0;}
+  .sum-item-row span:first-child{max-width:70%;}
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px 20px; border-radius:14px; font-weight:700; font-size:0.92rem;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn:disabled{opacity:0.5; pointer-events:none;}
+  .btn-primary{
+    background:linear-gradient(90deg, var(--accent), #5A78FF); color:#fff;
+    box-shadow:0 8px 24px -8px rgba(61,92,255,0.6);
+  }
+  .btn-ghost{background:var(--surface-2); border:1px solid var(--line); color:var(--text);}
+
+  /* ===== CHECKOUT BAR ===== */
+  .checkout-bar{
+    position:fixed; bottom:0; right:0; left:0; z-index:70;
+    background:rgba(18,22,42,0.97); backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + var(--safe-bottom));
+    display:flex; align-items:center; gap:12px;
+  }
+  .checkout-bar .cb-total{flex:1; min-width:0;}
+  .checkout-bar .cb-total span{display:block; font-size:0.68rem; color:var(--text-dim);}
+  .checkout-bar .cb-total b{font-size:1.15rem; color:var(--accent-2); font-variant-numeric:tabular-nums;}
+  .checkout-bar .btn{flex-shrink:0; padding:13px 22px;}
+
+  /* ===== SUCCESS OVERLAY ===== */
+  .success-overlay{
+    display:none; position:fixed; inset:0; z-index:100; background:rgba(10,13,26,0.88);
+    backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:24px;
+  }
+  .success-overlay.open{display:flex;}
+  .success-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg);
+    padding:32px 24px; text-align:center; max-width:340px; width:100%;
+    animation:pop .35s ease;
+  }
+  @keyframes pop{from{transform:scale(0.9); opacity:0;} to{transform:scale(1); opacity:1;}}
+  .success-icon{
+    width:64px; height:64px; border-radius:50%; background:rgba(0,217,192,0.12); color:var(--accent-2);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:2rem;
+  }
+  .success-card h3{font-size:1.1rem; font-weight:800; margin-bottom:6px;}
+  .success-card p{font-size:0.84rem; color:var(--text-dim); margin-bottom:22px;}
+  .success-order-id{font-size:0.78rem; color:var(--text-dim); margin-bottom:22px;}
+  .success-order-id b{color:var(--accent-2); font-weight:800;}
+
+  /* ===== TABLET / DESKTOP ===== */
+  @media (min-width:900px){
+    .wrap-grid.two-col{display:grid; grid-template-columns:1.6fr 1fr; gap:24px; align-items:start;}
+    .checkout-bar{position:static; background:none; backdrop-filter:none; border:none; padding:0; margin-top:18px;}
+    .checkout-bar .cb-total{display:none;}
+    .checkout-bar .btn{width:100%;}
+    body{padding-bottom:24px;}
+    .steps{padding:18px 16px 4px;}
+  }
+
+  /* ===== LIGHT THEME (DAY MODE) ===== */
+  html[data-theme="light"]{
+    --bg:#F4F6FB; --surface:#FFFFFF; --surface-2:#EEF1F8; --line:#E1E5F0;
+    --text:#12162A; --text-dim:#667085; --accent:#3D5CFF; --accent-2:#0E9C87;
+    --coral:#D14722; --gold:#B8790A;
+  }
+  html[data-theme="light"] header.top{background:rgba(255,255,255,0.86); box-shadow:0 1px 0 var(--line);}
+  html[data-theme="light"] .bottom-nav{background:rgba(255,255,255,0.92);}
+  html[data-theme="light"] .checkout-bar{background:rgba(255,255,255,0.92);}
+  html[data-theme="light"] .bottom-bar{background:rgba(255,255,255,0.92);}
+  html[data-theme="light"] .success-overlay{background:rgba(244,246,251,0.95);}
+  html[data-theme="light"] .map-eta{background:rgba(255,255,255,0.92);}
+  html[data-theme="light"] .ci-media,
+  html[data-theme="light"] .p-media,
+  html[data-theme="light"] .rider-avatar,
+  html[data-theme="light"] .fav-media{background:linear-gradient(135deg, var(--surface-2), #E2E7F5);}
+  html[data-theme="light"] .drawer{box-shadow:-8px 0 30px -10px rgba(20,30,60,0.15);}
+
+  /* theme toggle icon swap */
+  .theme-toggle .icon-moon{display:none;}
+  .theme-toggle .icon-sun{display:flex;}
+  html[data-theme="light"] .theme-toggle .icon-sun{display:none;}
+  html[data-theme="light"] .theme-toggle .icon-moon{display:flex;}
+
+  /* ============================================================
+     MOTION & INTERACTION SYSTEM — unified across the app
+     (added: does not change layout, branding or functionality)
+     ============================================================ */
+  :root{
+    --m-ease-out:cubic-bezier(.16,1,.3,1);
+    --m-ease-in:cubic-bezier(.7,0,.84,0);
+    --m-ease-in-out:cubic-bezier(.65,0,.35,1);
+    --m-spring:cubic-bezier(.34,1.56,.64,1);
+    --m-fast:140ms; --m-base:220ms; --m-slow:320ms;
+    --m-scroll-ease:cubic-bezier(.22,1,.36,1); --m-scroll-dur:520ms;
+    --m-reveal-dist:20px;
+  }
+
+  /* ---- buttons & tappable controls ---- */
+  .icon-btn, .btn, .btn-primary, .btn-ghost, .btn-outline, .btn-coral,
+  .fav-add, .clear-btn, .edit-btn, .promo-apply, .form-save-btn, .add-addr-btn,
+  .hamburger-btn, .p-add, .p-fav, .call, .drawer-close, .fav-remove,
+  .saved-restore, .top-fab, .sum-items-toggle, .saved-toggle, .ci-remove,
+  .ci-save, .discount, .qty button, .rider-actions a, .swatch, .chip{
+    transition:transform var(--m-fast) var(--m-ease-out),
+               box-shadow var(--m-fast) var(--m-ease-out),
+               background-color var(--m-fast) var(--m-ease-out),
+               border-color var(--m-fast) var(--m-ease-out),
+               color var(--m-fast) var(--m-ease-out),
+               opacity var(--m-fast) var(--m-ease-out) !important;
+    will-change:transform;
+  }
+  @media (hover:hover){
+    .icon-btn:hover, .btn:hover, .btn-primary:hover, .btn-ghost:hover, .btn-outline:hover, .btn-coral:hover,
+    .fav-add:hover:not(:disabled), .edit-btn:hover, .promo-apply:hover, .form-save-btn:hover, .add-addr-btn:hover,
+    .p-add:hover, .call:hover, .top-fab:hover, .saved-restore:hover, .swatch:hover, .chip:hover{
+      transform:translateY(-1px) scale(1.02);
+      box-shadow:0 8px 18px -8px rgba(0,0,0,.35);
+    }
+    .order-card:hover, .rp-card:hover, .addr-card:hover, .why-card:hover, .t-card:hover,
+    .p-card:hover, .stat-card:hover, .rider-card:hover, .map-card:hover{
+      transform:translateY(-3px);
+      border-color:var(--accent);
+      box-shadow:0 14px 28px -16px rgba(0,0,0,.4);
+    }
+    .menu-row:hover, .pay-option:hover, .drawer-link:hover, .faq-item:hover, .addr-card:hover{
+      background-color:var(--surface-2);
+    }
+  }
+  .icon-btn:active, .btn:active, .btn-primary:active, .btn-ghost:active, .btn-outline:active, .btn-coral:active,
+  .fav-add:active, .clear-btn:active, .edit-btn:active, .promo-apply:active, .form-save-btn:active,
+  .add-addr-btn:active, .hamburger-btn:active, .p-add:active, .p-fav:active, .call:active,
+  .drawer-close:active, .fav-remove:active, .top-fab:active, .menu-row:active, .pay-option:active,
+  .drawer-link:active, .lang-pill:active, .tab:active, .tabbtn:active, .swatch:active, .chip:active,
+  .cat-card:active, .order-card:active, .rp-card:active, .fav-card:active, .addr-card:active, .p-card:active{
+    transform:scale(.97) !important;
+    transition-duration:90ms !important;
+  }
+
+  /* ---- cards ---- */
+  .cat-card, .order-card, .rp-card, .fav-card, .addr-card, .rider-card, .map-card, .why-card, .t-card,
+  .cart-item, .saved-item, .p-card, .stat-card{
+    transition:transform var(--m-base) var(--m-ease-out),
+               box-shadow var(--m-base) var(--m-ease-out),
+               border-color var(--m-base) var(--m-ease-out) !important;
+    will-change:transform;
+  }
+
+  /* ---- rows, tabs, pills, chips ---- */
+  .menu-row, .pay-option, .oc-head, .drawer-link, .faq-item, .lang-pill, .tab, .tabbtn,
+  .swatch, .chip, .oc-store-chip{
+    transition:background-color var(--m-fast) var(--m-ease-out),
+               color var(--m-fast) var(--m-ease-out),
+               border-color var(--m-fast) var(--m-ease-out),
+               transform var(--m-fast) var(--m-ease-out) !important;
+  }
+
+  /* ---- stepper / progress dots ---- */
+  .dot, .step .dot, .step-line, .step, .gdot, .tl-dot, .tl-line{
+    transition:background-color var(--m-base) var(--m-ease-in-out),
+               border-color var(--m-base) var(--m-ease-in-out),
+               color var(--m-base) var(--m-ease-in-out),
+               width var(--m-base) var(--m-ease-in-out),
+               transform var(--m-base) var(--m-ease-in-out) !important;
+  }
+
+  /* ---- toggle switches ---- */
+  .switch{transition:background-color var(--m-base) var(--m-ease-in-out), border-color var(--m-base) var(--m-ease-in-out) !important;}
+  .switch::after{transition:transform var(--m-base) var(--m-spring) !important;}
+
+  /* ---- toast ---- */
+  .toast{transition:opacity var(--m-base) var(--m-ease-out), transform var(--m-base) var(--m-spring) !important;}
+
+  /* ---- drawer / overlays ---- */
+  .drawer-overlay{transition:opacity var(--m-base) var(--m-ease-out) !important;}
+  .drawer{transition:transform var(--m-slow) var(--m-ease-out) !important;}
+  .drawer-link{transform:translateX(0);}
+
+  /* ---- accordions (max-height panels) ---- */
+  .saved-list, .sum-items{transition:max-height var(--m-slow) var(--m-ease-in-out) !important;}
+  .saved-toggle .chev{transition:transform var(--m-base) var(--m-ease-in-out) !important;}
+
+  /* ---- inline validation / promo messages ---- */
+  .promo-msg.ok, .promo-msg.err, .field-err{animation:m-fade-up var(--m-fast) var(--m-ease-out);}
+
+  /* ---- tab panel crossfade ---- */
+  .tabpanel.active{animation:m-fade-up var(--m-base) var(--m-ease-out);}
+  .gallery-slide{transition:opacity var(--m-base) var(--m-ease-out) !important;}
+
+  /* ---- success / confirmation modal ---- */
+  .success-overlay.open{animation:m-fade-in var(--m-base) var(--m-ease-out);}
+  .success-card{animation:m-modal-in var(--m-slow) var(--m-ease-out) !important;}
+
+  /* ---- reveal-on-scroll (generic, used by .reveal + .m-reveal) ---- */
+  .reveal, .m-reveal{
+    opacity:0; transform:translateY(var(--m-reveal-dist));
+    transition:opacity var(--m-scroll-dur) var(--m-scroll-ease), transform var(--m-scroll-dur) var(--m-scroll-ease) !important;
+    will-change:transform, opacity;
+  }
+  .reveal.in, .m-reveal.in{opacity:1; transform:translateY(0) translateX(0);}
+
+  /* directional variants for scroll-reveal — assigned automatically by JS for visual variety */
+  .m-reveal-d{transform:translateY(calc(var(--m-reveal-dist) * -1));}
+  .m-reveal-l{transform:translateX(calc(var(--m-reveal-dist) * -1.6));}
+  .m-reveal-r{transform:translateX(calc(var(--m-reveal-dist) * 1.6));}
+
+  /* icon pop-in: small scale + fade for decorative icons inside revealed cards */
+  .m-icon-pop{
+    opacity:0; transform:scale(0.8);
+    transition:opacity var(--m-base) var(--m-ease-out), transform var(--m-base) var(--m-spring) !important;
+    display:inline-block; will-change:transform, opacity;
+  }
+  .m-icon-pop.in{opacity:1; transform:scale(1);}
+
+  @media (max-width:640px){
+    :root{ --m-reveal-dist:12px; --m-scroll-dur:380ms; }
+  }
+
+  /* ---- list add/remove ---- */
+  .fav-card.removing, .cart-item.removing, .order-card.removing, .saved-item.removing{
+    transition:transform var(--m-base) var(--m-ease-in), opacity var(--m-base) var(--m-ease-in) !important;
+  }
+  .m-enter{animation:m-fade-up var(--m-base) var(--m-ease-out);}
+
+  @keyframes m-fade-up{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes m-fade-in{from{opacity:0;} to{opacity:1;}}
+  @keyframes m-modal-in{from{opacity:0; transform:scale(.96);} to{opacity:1; transform:scale(1);}}
+  @keyframes m-nav-in{from{opacity:0; transform:translateY(-14px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes m-body-in{from{opacity:0;} to{opacity:1;}}
+
+  /* ---- page load: navbar entrance + whole-page fade-in ---- */
+  header.top{animation:m-nav-in .55s var(--m-ease-out) both;}
+  body{animation:m-body-in var(--m-slow) var(--m-ease-out) both;}
+
+  /* ---- page-to-page transition: fade the current page out before navigating away ---- */
+  body.m-page-exit{opacity:0 !important; transition:opacity 180ms var(--m-ease-in) !important; pointer-events:none;}
+
+  /* ---- slim top loading indicator (only shown briefly while a page navigation is in flight) ---- */
+  .m-loadbar{
+    position:fixed; top:0; right:0; left:0; height:2.5px; z-index:999;
+    background:linear-gradient(90deg, var(--accent-2), var(--accent));
+    transform:scaleX(0); transform-origin:right;
+    opacity:0; pointer-events:none;
+    transition:transform .45s var(--m-ease-out), opacity .2s var(--m-ease-out);
+  }
+  .m-loadbar.show{opacity:1; transform:scaleX(.72);}
+  .m-loadbar.done{opacity:0; transform:scaleX(1); transition:transform .2s var(--m-ease-out), opacity .3s ease .15s;}
+
+  /* ---- scroll progress bar: fills as the user scrolls down the page ---- */
+  .m-scrollbar{
+    position:fixed; top:0; right:0; left:0; height:2.5px; z-index:997; pointer-events:none;
+    background:rgba(128,128,128,0.12);
+  }
+  .m-scrollbar-fill{
+    height:100%; width:100%; transform:scaleX(0); transform-origin:right;
+    background:linear-gradient(90deg, var(--accent-2), var(--accent));
+    transition:transform 80ms linear;
+    will-change:transform;
+  }
+
+  /* ---- hero parallax: background media + decorative glows drift slightly vs. scroll ---- */
+  .hero{ --pz:0px; }
+  .hero-media-wrap img{ transform:translate(-50%,-50%) translateY(var(--pz,0px)) !important; }
+  .hero::before{ transform:translateY(calc(var(--pz,0px) * 0.7)); }
+  .hero::after{ transform:translateY(calc(var(--pz,0px) * -0.7)); }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration:0.01ms !important; animation-iteration-count:1 !important;
+      transition-duration:0.01ms !important; scroll-behavior:auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="top">
+  <div class="top-row">
+    <a class="icon-btn" href="cart.html" aria-label="رجوع">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="16 4 8 12 16 20"/></svg>
+    </a>
+    <div class="page-title">العنوان والدفع<small>أكمل بياناتك لإتمام الطلب</small></div>
+    <div class="top-spacer"></div>
+    <button class="icon-btn theme-toggle" id="themeToggle" aria-label="الوضع الليلي/النهاري">
+      <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+    
+  </div>
+  <div class="steps">
+    <div class="step done"><span class="dot">✓</span> السلة</div>
+    <div class="step-line done"></div>
+    <div class="step active" id="stepAddr"><span class="dot">2</span> العنوان</div>
+    <div class="step-line" id="lineAddrPay"></div>
+    <div class="step" id="stepPay"><span class="dot">3</span> الدفع</div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap-grid two-col">
+    <div>
+      <!-- ADDRESS SECTION -->
+      <div class="section">
+        <div class="section-head"><span class="em">📍</span><h3>عنوان التوصيل</h3></div>
+
+        <div class="addr-card selected" data-addr="1">
+          <div class="addr-radio"><div class="fill"></div></div>
+          <div class="addr-body">
+            <div class="addr-label">المنزل <span class="addr-tag">افتراضي</span></div>
+            <div class="addr-detail">غزة، تل الهوى، شارع الوحدة، عمارة 12 — بجانب صيدلية الشفاء</div>
+          </div>
+        </div>
+        <div class="addr-card" data-addr="2">
+          <div class="addr-radio"><div class="fill"></div></div>
+          <div class="addr-body">
+            <div class="addr-label">العمل</div>
+            <div class="addr-detail">غزة، الرمال، شارع عمر المختار، مجمع النور</div>
+          </div>
+        </div>
+
+        <button class="add-addr-btn" id="toggleAddrForm">+ إضافة عنوان جديد</button>
+
+        <div class="addr-form" id="addrForm">
+          <div class="field-row">
+            <div class="field">
+              <label>الاسم الكامل</label>
+              <input type="text" id="fName" placeholder="اسمك الثلاثي">
+              <span class="field-err">الرجاء إدخال الاسم</span>
+            </div>
+            <div class="field">
+              <label>رقم الهاتف</label>
+              <input type="tel" id="fPhone" placeholder="05XXXXXXXX">
+              <span class="field-err">رقم هاتف غير صحيح</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>المحافظة / المنطقة</label>
+            <select id="fCity">
+              <option value="">اختر المنطقة</option>
+              <option>غزة</option>
+              <option>شمال غزة</option>
+              <option>دير البلح (الوسطى)</option>
+              <option>خان يونس</option>
+              <option>رفح</option>
+            </select>
+            <span class="field-err">الرجاء اختيار المنطقة</span>
+          </div>
+          <div class="field">
+            <label>العنوان بالتفصيل</label>
+            <textarea id="fAddr" placeholder="الحي، الشارع، أقرب معلَم مميز..."></textarea>
+            <span class="field-err">الرجاء إدخال تفاصيل العنوان</span>
+          </div>
+          <button class="form-save-btn" id="saveAddrBtn">حفظ العنوان</button>
+        </div>
+      </div>
+
+      <!-- PAYMENT SECTION -->
+      <div class="section">
+        <div class="section-head"><span class="em">💳</span><h3>طريقة الدفع</h3></div>
+
+        <div class="pay-option selected" data-pay="cod">
+          <span class="em">💵</span>
+          <div class="pay-body">
+            <div class="pay-name">الدفع عند الاستلام</div>
+            <div class="pay-desc">ادفع نقدًا للمندوب عند وصول الطلب</div>
+          </div>
+          <div class="pay-radio"><div class="fill"></div></div>
+        </div>
+        <div class="pay-option" data-pay="card">
+          <span class="em">💳</span>
+          <div class="pay-body">
+            <div class="pay-name">بطاقة ائتمان / مدى</div>
+            <div class="pay-desc">دفع آمن عبر بوابة إلكترونية</div>
+          </div>
+          <div class="pay-radio"><div class="fill"></div></div>
+        </div>
+        <div class="pay-option" data-pay="wallet">
+          <span class="em">📱</span>
+          <div class="pay-body">
+            <div class="pay-name">محفظة إلكترونية</div>
+            <div class="pay-desc">جوّال، ريبال، أو محفظة أخرى</div>
+          </div>
+          <div class="pay-radio"><div class="fill"></div></div>
+        </div>
+
+        <div class="card-form" id="cardForm">
+          <div class="field">
+            <label>رقم البطاقة</label>
+            <input type="text" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="19">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>تاريخ الانتهاء</label>
+              <input type="text" placeholder="MM/YY" maxlength="5">
+            </div>
+            <div class="field">
+              <label>CVV</label>
+              <input type="text" inputmode="numeric" placeholder="•••" maxlength="4">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTE -->
+      <div class="section note-box">
+        <div class="section-head"><span class="em">📝</span><h3>ملاحظة للمندوب (اختياري)</h3></div>
+        <textarea placeholder="مثال: الرجاء الاتصال قبل الوصول..."></textarea>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="section" style="margin-top:18px;">
+      <h3 style="font-size:0.92rem; font-weight:800; margin-bottom:12px;">ملخص الطلب</h3>
+      <div class="sum-row"><span>المجموع الفرعي</span><b id="sumSubtotal">700₪</b></div>
+      <div class="sum-row"><span>رسوم التوصيل</span><b id="sumDelivery">15₪</b></div>
+      <div class="sum-row discount"><span>الخصم</span><b id="sumDiscount">-70₪</b></div>
+      <div class="sum-divider"></div>
+      <div class="sum-total"><span>الإجمالي</span><b id="sumTotal">645₪</b></div>
+      <a class="sum-items-toggle" id="sumItemsToggle">عرض المنتجات (4)</a>
+      <div class="sum-items" id="sumItems">
+        <div class="sum-item-row"><span>سماعة لاسلكية عالية الجودة × 1</span><span>145₪</span></div>
+        <div class="sum-item-row"><span>ساعة ذكية بشاشة لمس × 1</span><span>340₪</span></div>
+        <div class="sum-item-row"><span>حذاء رياضي مريح للمشي اليومي × 2</span><span>440₪</span></div>
+        <div class="sum-item-row"><span>حقيبة ظهر مقاومة للماء × 1</span><span>95₪</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- CHECKOUT BAR -->
+<div class="checkout-bar" id="checkoutBar">
+  <div class="cb-total"><span>الإجمالي</span><b id="barTotal">645₪</b></div>
+  <button class="btn btn-primary" id="confirmBtn" style="flex:1;">تأكيد الطلب ←</button>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    <h3>تم استلام طلبك!</h3>
+    <p>سيتواصل معك المندوب قريبًا لتأكيد التوصيل.</p>
+    <div class="success-order-id">رقم الطلب: <b id="orderId">#SP-0000</b></div>
+    <a class="btn btn-primary" href="track-order.html" style="width:100%; margin-bottom:10px;">🚚 تتبع الطلب</a>
+    <a class="btn btn-ghost" href="speed-shop.html" style="width:100%;">🛍️ متابعة التسوق</a>
+  </div>
+</div>
+
+<script>
+  // ===== ADDRESS SELECTION =====
+  document.querySelectorAll('.addr-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.addr-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      document.getElementById('addrForm').classList.remove('open');
+    });
+  });
+
+  // ===== NEW ADDRESS FORM TOGGLE =====
+  const addrForm = document.getElementById('addrForm');
+  document.getElementById('toggleAddrForm').addEventListener('click', () => {
+    addrForm.classList.toggle('open');
+    if(addrForm.classList.contains('open')){
+      document.querySelectorAll('.addr-card').forEach(c => c.classList.remove('selected'));
+    }
+  });
+
+  document.getElementById('saveAddrBtn').addEventListener('click', () => {
+    const fields = [
+      {id:'fName', check: v => v.trim().length > 2},
+      {id:'fPhone', check: v => /^0\d{9}$/.test(v.trim())},
+      {id:'fCity', check: v => v !== ''},
+      {id:'fAddr', check: v => v.trim().length > 5}
+    ];
+    let valid = true;
+    fields.forEach(f => {
+      const el = document.getElementById(f.id);
+      const ok = f.check(el.value);
+      el.closest('.field').classList.toggle('invalid', !ok);
+      if(!ok) valid = false;
+    });
+    if(!valid) return;
+
+    // create a new address card and select it
+    const card = document.createElement('div');
+    card.className = 'addr-card selected';
+    card.dataset.addr = 'new';
+    card.innerHTML = `
+      <div class="addr-radio"><div class="fill"></div></div>
+      <div class="addr-body">
+        <div class="addr-label">عنوان جديد</div>
+        <div class="addr-detail">${document.getElementById('fCity').value} — ${document.getElementById('fAddr').value}</div>
+      </div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.addr-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+    document.querySelectorAll('.addr-card').forEach(c => c.classList.remove('selected'));
+    addrForm.parentNode.insertBefore(card, document.getElementById('toggleAddrForm'));
+    addrForm.classList.remove('open');
+  });
+
+  // ===== PAYMENT SELECTION =====
+  const cardForm = document.getElementById('cardForm');
+  document.querySelectorAll('.pay-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      cardForm.classList.toggle('open', opt.dataset.pay === 'card');
+    });
+  });
+
+  // ===== SUMMARY ITEMS TOGGLE =====
+  document.getElementById('sumItemsToggle').addEventListener('click', function(){
+    document.getElementById('sumItems').classList.toggle('open');
+    this.textContent = document.getElementById('sumItems').classList.contains('open')
+      ? 'إخفاء المنتجات' : 'عرض المنتجات (4)';
+  });
+
+  // ===== STEP INDICATOR: shift to "payment" step once a payment method other than default is engaged with,
+  // or simply move visually to step 3 right before confirming =====
+  function markPaymentStep(){
+    document.getElementById('stepAddr').classList.remove('active');
+    document.getElementById('stepAddr').classList.add('done');
+    document.getElementById('stepAddr').querySelector('.dot').textContent = '✓';
+    document.getElementById('lineAddrPay').classList.add('done');
+    document.getElementById('stepPay').classList.add('active');
+  }
+  document.querySelectorAll('.pay-option').forEach(opt => opt.addEventListener('click', markPaymentStep, {once:true}));
+
+  // ===== CONFIRM ORDER =====
+  document.getElementById('confirmBtn').addEventListener('click', () => {
+    if(addrForm.classList.contains('open')){
+      document.getElementById('saveAddrBtn').click();
+      if(addrForm.classList.contains('open')) return; // invalid, stop
+    }
+    markPaymentStep();
+    document.getElementById('orderId').textContent = '#SP-' + Math.floor(1000 + Math.random()*9000);
+    document.getElementById('successOverlay').classList.add('open');
+  });
+</script>
+<script>
+  (function(){
+    var btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      var next = isLight ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      try{ localStorage.setItem('speedShopTheme', next); }catch(e){}
+    });
+  })();
+</script>
+<script>
+(function(){
+  // Enables :active styles to fire reliably on iOS Safari
+  document.addEventListener('touchstart', function(){}, {passive:true});
+
+  // Scroll-reveal: adds directional variety + per-group stagger to cards/sections
+  // (down for headings, left/right for paired cards, up for the rest), plus a
+  // gentle pop-in for icons inside them. Also covers elements already tagged
+  // with .reveal/.m-reveal so the whole page stays visually consistent.
+  var sel = '.order-card, .addr-card, .rp-card, .why-card, .t-card, .fav-card, .rider-card, .map-card, .stat-card, .section, .cart-item, .saved-item, .page-title, .p-title, .section-head, .section-label, .hero, .hero-stats, .stats-row, .cat-card, .p-card, .offer-band';
+  var downSel = '.section-head, .section-label, .page-title, .p-title';
+  var sideSel = '.addr-card, .rp-card, .rider-card, .map-card, .fav-card';
+  var iconHostSel = '.why-card, .cat-card, .t-card, .stat-card';
+  var all = Array.prototype.slice.call(document.querySelectorAll(sel));
+  if('IntersectionObserver' in window && all.length){
+    var parentIdx = new Map();
+    var parentSide = new Map();
+    all.forEach(function(el){
+      if(!el.classList.contains('reveal') && !el.classList.contains('m-reveal')){
+        el.classList.add('m-reveal');
+      }
+      if(el.matches(downSel)){
+        el.classList.add('m-reveal-d');
+      } else if(el.matches(sideSel)){
+        var side = parentSide.get(el.parentElement) || 0;
+        el.classList.add(side % 2 === 0 ? 'm-reveal-r' : 'm-reveal-l');
+        parentSide.set(el.parentElement, side + 1);
+      }
+      var idx = parentIdx.get(el.parentElement) || 0;
+      el.style.transitionDelay = (Math.min(idx, 5) * 100) + 'ms';
+      parentIdx.set(el.parentElement, idx + 1);
+    });
+    var mio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('in');
+          mio.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.12});
+    all.forEach(function(el){ mio.observe(el); });
+
+    var icons = [];
+    all.forEach(function(el){
+      if(el.matches(iconHostSel)){
+        var em = el.querySelector('.em');
+        if(em) icons.push(em);
+      }
+    });
+    icons.forEach(function(el, i){
+      el.classList.add('m-icon-pop');
+      el.style.transitionDelay = (Math.min(i % 6, 5) * 100 + 80) + 'ms';
+      mio.observe(el);
+    });
+  }
+})();
+</script>
+<script>
+(function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bar = document.createElement('div');
+  bar.className = 'm-loadbar';
+  document.body.appendChild(bar);
+
+  // Shared helper so JS-triggered redirects (buy now, checkout, logout...) use the
+  // same soft fade + loading cue as normal link navigation.
+  window.mGoTo = function(href, delay){
+    if(!href) return;
+    bar.classList.remove('done');
+    void bar.offsetWidth;
+    bar.classList.add('show');
+    if(reduceMotion){ window.location.href = href; return; }
+    document.body.classList.add('m-page-exit');
+    setTimeout(function(){ window.location.href = href; }, delay || 180);
+  };
+
+  // Intercept clicks on internal .html links to play a light fade-out before leaving.
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href]');
+    if(!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var href = a.getAttribute('href');
+    if(!href || href.charAt(0) === '#' || a.target === '_blank' || a.hasAttribute('download')) return;
+    if(/^([a-z]+:)?\/\//i.test(href) || /^(tel|sms|mailto|whatsapp):/i.test(href)) return;
+    if(href.indexOf('.html') === -1) return;
+    e.preventDefault();
+    window.mGoTo(href);
+  }, true);
+})();
+</script>
+<script>
+(function(){
+  // Scroll progress bar
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var track = document.createElement('div');
+  track.className = 'm-scrollbar';
+  var fill = document.createElement('div');
+  fill.className = 'm-scrollbar-fill';
+  track.appendChild(fill);
+  document.body.appendChild(track);
+  var ticking = false;
+  function updateProgress(){
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - doc.clientHeight;
+    var pct = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0;
+    fill.style.transform = 'scaleX(' + pct + ')';
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ requestAnimationFrame(updateProgress); ticking = true; }
+  }, {passive:true});
+  updateProgress();
+
+  // Hero parallax: only runs while the hero is near the viewport, and skipped
+  // entirely on reduced-motion or small/touch screens to keep things light.
+  var hero = document.querySelector('.hero');
+  var isSmall = window.matchMedia('(max-width:640px)').matches;
+  if(hero && !reduceMotion && !isSmall && 'IntersectionObserver' in window){
+    var active = false;
+    function updateParallax(){
+      var rect = hero.getBoundingClientRect();
+      var mid = rect.top + rect.height / 2 - window.innerHeight / 2;
+      var pz = Math.max(-24, Math.min(24, mid * -0.06));
+      hero.style.setProperty('--pz', pz + 'px');
+      if(active) requestAnimationFrame(updateParallax);
+    }
+    var hio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting && !active){
+          active = true;
+          requestAnimationFrame(updateParallax);
+        } else if(!e.isIntersecting){
+          active = false;
+        }
+      });
+    });
+    hio.observe(hero);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var t=localStorage.getItem("speedShopTheme")||"dark";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>المفضلة — SPEED SHOP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0D1A; --surface:#12162A; --surface-2:#1A1F3A; --line:#262C4A;
+    --text:#F2F3F8; --text-dim:#9BA0C0; --accent:#3D5CFF; --accent-2:#00D9C0;
+    --coral:#FF6A3D; --gold:#FFB020;
+    --radius-sm:10px; --radius-md:16px; --radius-lg:24px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Cairo', sans-serif; background:var(--bg); color:var(--text); line-height:1.6;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden; padding-bottom:calc(80px + var(--safe-bottom));
+  }
+  img{max-width:100%; display:block;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; border:none; cursor:pointer; color:inherit; background:none;}
+  ::selection{background:var(--accent); color:#fff;}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}}
+
+  .wrap{max-width:900px; margin:0 auto; padding:0 16px;}
+
+  header.top{
+    position:sticky; top:0; z-index:50; background:rgba(10,13,26,0.92);
+    backdrop-filter:blur(14px); border-bottom:1px solid var(--line);
+  }
+  .top-row{display:flex; align-items:center; gap:12px; padding:12px 16px;}
+  .icon-btn{
+    width:38px; height:38px; border-radius:12px; background:var(--surface); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; color:var(--text); flex-shrink:0;
+  }
+  .page-title{font-weight:800; font-size:1.05rem;}
+  .page-title small{display:block; font-size:0.7rem; font-weight:500; color:var(--text-dim); margin-top:1px;}
+  .top-spacer{margin-inline-start:auto;}
+  .clear-btn{font-size:0.8rem; color:var(--coral); font-weight:700;}
+
+  main{padding-top:16px;}
+
+  .fav-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 16px;
+  }
+  .fav-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md);
+    padding:10px; position:relative; transition:transform .2s ease, opacity .2s ease;
+  }
+  .fav-card.removing{transform:scale(0.9); opacity:0;}
+  .fav-media{
+    height:110px; border-radius:11px; margin-bottom:9px;
+    background:linear-gradient(135deg, var(--surface-2), #10142A);
+    display:flex; align-items:center; justify-content:center; font-size:2.6rem; position:relative;
+  }
+  .fav-remove{
+    position:absolute; top:8px; left:8px; width:28px; height:28px; border-radius:9px;
+    background:rgba(10,13,26,0.75); backdrop-filter:blur(4px); color:var(--coral);
+    display:flex; align-items:center; justify-content:center; z-index:2;
+  }
+  .fav-store{font-size:0.66rem; color:var(--text-dim); margin-bottom:3px;}
+  .fav-name{
+    font-size:0.8rem; font-weight:700; margin-bottom:6px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.3em;
+  }
+  .fav-price-row{display:flex; align-items:baseline; gap:6px; margin-bottom:9px;}
+  .fav-price{font-weight:800; font-size:0.9rem; color:var(--accent-2);}
+  .fav-old{font-size:0.68rem; color:var(--text-dim); text-decoration:line-through;}
+  .fav-stock{font-size:0.66rem; font-weight:700; margin-bottom:8px;}
+  .fav-stock.in{color:var(--accent-2);}
+  .fav-stock.out{color:var(--coral);}
+  .fav-add{
+    width:100%; padding:9px; border-radius:10px; background:var(--accent); color:#fff;
+    font-weight:700; font-size:0.76rem; display:flex; align-items:center; justify-content:center; gap:5px;
+  }
+  .fav-add:disabled{background:var(--surface-2); color:var(--text-dim);}
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state{
+    display:none; flex-direction:column; align-items:center; text-align:center;
+    padding:70px 24px; gap:6px;
+  }
+  .empty-state.show{display:flex;}
+  .empty-state .em{font-size:3rem; margin-bottom:10px; opacity:0.7;}
+  .empty-state h3{font-size:1.05rem; font-weight:800;}
+  .empty-state p{font-size:0.84rem; color:var(--text-dim); max-width:32ch; margin-bottom:20px;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 22px; border-radius:14px; font-weight:700; font-size:0.86rem;
+  }
+  .btn-primary{background:linear-gradient(90deg, var(--accent), #5A78FF); color:#fff;}
+
+  .toast{
+    position:fixed; bottom:calc(20px + var(--safe-bottom)); right:50%; transform:translateX(50%) translateY(10px);
+    z-index:90; background:var(--surface-2); border:1px solid var(--accent-2); color:var(--text);
+    padding:11px 18px; border-radius:12px; font-size:0.8rem; font-weight:700;
+    opacity:0; pointer-events:none; transition:all .25s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(50%) translateY(0);}
+
+  @media (min-width:640px){
+    .fav-grid{grid-template-columns:repeat(3,1fr);}
+  }
+  @media (min-width:900px){
+    .fav-grid{grid-template-columns:repeat(4,1fr);}
+  }
+
+  /* ===== LIGHT THEME (DAY MODE) ===== */
+  html[data-theme="light"]{
+    --bg:#F4F6FB; --surface:#FFFFFF; --surface-2:#EEF1F8; --line:#E1E5F0;
+    --text:#12162A; --text-dim:#667085; --accent:#3D5CFF; --accent-2:#0E9C87;
+    --coral:#D14722; --gold:#B8790A;
+  }
+  html[data-theme="light"] header.top{background:rgba(255,255,255,0.86); box-shadow:0 1px 0 var(--line);}
+  html[data-theme="light"] .bottom-nav{background:rgba(255,255,255,0.92);}
+  html[data-theme="light"] .checkout-bar{background:rgba(255,255,255,0.92);}
+  html[data-theme="light"] .bottom-bar{background:rgba(255,255,255,0.92);}
+  html[data-theme="light"] .success-overlay{background:rgba(244,246,251,0.95);}
+  html[data-theme="light"] .map-eta{background:rgba(255,255,255,0.92);}
+  html[data-theme="light"] .ci-media,
+  html[data-theme="light"] .p-media,
+  html[data-theme="light"] .rider-avatar,
+  html[data-theme="light"] .fav-media{background:linear-gradient(135deg, var(--surface-2), #E2E7F5);}
+  html[data-theme="light"] .drawer{box-shadow:-8px 0 30px -10px rgba(20,30,60,0.15);}
+
+  /* theme toggle icon swap */
+  .theme-toggle .icon-moon{display:none;}
+  .theme-toggle .icon-sun{display:flex;}
+  html[data-theme="light"] .theme-toggle .icon-sun{display:none;}
+  html[data-theme="light"] .theme-toggle .icon-moon{display:flex;}
+
+  /* ============================================================
+     MOTION & INTERACTION SYSTEM — unified across the app
+     (added: does not change layout, branding or functionality)
+     ============================================================ */
+  :root{
+    --m-ease-out:cubic-bezier(.16,1,.3,1);
+    --m-ease-in:cubic-bezier(.7,0,.84,0);
+    --m-ease-in-out:cubic-bezier(.65,0,.35,1);
+    --m-spring:cubic-bezier(.34,1.56,.64,1);
+    --m-fast:140ms; --m-base:220ms; --m-slow:320ms;
+    --m-scroll-ease:cubic-bezier(.22,1,.36,1); --m-scroll-dur:520ms;
+    --m-reveal-dist:20px;
+  }
+
+  /* ---- buttons & tappable controls ---- */
+  .icon-btn, .btn, .btn-primary, .btn-ghost, .btn-outline, .btn-coral,
+  .fav-add, .clear-btn, .edit-btn, .promo-apply, .form-save-btn, .add-addr-btn,
+  .hamburger-btn, .p-add, .p-fav, .call, .drawer-close, .fav-remove,
+  .saved-restore, .top-fab, .sum-items-toggle, .saved-toggle, .ci-remove,
+  .ci-save, .discount, .qty button, .rider-actions a, .swatch, .chip{
+    transition:transform var(--m-fast) var(--m-ease-out),
+               box-shadow var(--m-fast) var(--m-ease-out),
+               background-color var(--m-fast) var(--m-ease-out),
+               border-color var(--m-fast) var(--m-ease-out),
+               color var(--m-fast) var(--m-ease-out),
+               opacity var(--m-fast) var(--m-ease-out) !important;
+    will-change:transform;
+  }
+  @media (hover:hover){
+    .icon-btn:hover, .btn:hover, .btn-primary:hover, .btn-ghost:hover, .btn-outline:hover, .btn-coral:hover,
+    .fav-add:hover:not(:disabled), .edit-btn:hover, .promo-apply:hover, .form-save-btn:hover, .add-addr-btn:hover,
+    .p-add:hover, .call:hover, .top-fab:hover, .saved-restore:hover, .swatch:hover, .chip:hover{
+      transform:translateY(-1px) scale(1.02);
+      box-shadow:0 8px 18px -8px rgba(0,0,0,.35);
+    }
+    .order-card:hover, .rp-card:hover, .addr-card:hover, .why-card:hover, .t-card:hover,
+    .p-card:hover, .stat-card:hover, .rider-card:hover, .map-card:hover{
+      transform:translateY(-3px);
+      border-color:var(--accent);
+      box-shadow:0 14px 28px -16px rgba(0,0,0,.4);
+    }
+    .menu-row:hover, .pay-option:hover, .drawer-link:hover, .faq-item:hover, .addr-card:hover{
+      background-color:var(--surface-2);
+    }
+  }
+  .icon-btn:active, .btn:active, .btn-primary:active, .btn-ghost:active, .btn-outline:active, .btn-coral:active,
+  .fav-add:active, .clear-btn:active, .edit-btn:active, .promo-apply:active, .form-save-btn:active,
+  .add-addr-btn:active, .hamburger-btn:active, .p-add:active, .p-fav:active, .call:active,
+  .drawer-close:active, .fav-remove:active, .top-fab:active, .menu-row:active, .pay-option:active,
+  .drawer-link:active, .lang-pill:active, .tab:active, .tabbtn:active, .swatch:active, .chip:active,
+  .cat-card:active, .order-card:active, .rp-card:active, .fav-card:active, .addr-card:active, .p-card:active{
+    transform:scale(.97) !important;
+    transition-duration:90ms !important;
+  }
+
+  /* ---- cards ---- */
+  .cat-card, .order-card, .rp-card, .fav-card, .addr-card, .rider-card, .map-card, .why-card, .t-card,
+  .cart-item, .saved-item, .p-card, .stat-card{
+    transition:transform var(--m-base) var(--m-ease-out),
+               box-shadow var(--m-base) var(--m-ease-out),
+               border-color var(--m-base) var(--m-ease-out) !important;
+    will-change:transform;
+  }
+
+  /* ---- rows, tabs, pills, chips ---- */
+  .menu-row, .pay-option, .oc-head, .drawer-link, .faq-item, .lang-pill, .tab, .tabbtn,
+  .swatch, .chip, .oc-store-chip{
+    transition:background-color var(--m-fast) var(--m-ease-out),
+               color var(--m-fast) var(--m-ease-out),
+               border-color var(--m-fast) var(--m-ease-out),
+               transform var(--m-fast) var(--m-ease-out) !important;
+  }
+
+  /* ---- stepper / progress dots ---- */
+  .dot, .step .dot, .step-line, .step, .gdot, .tl-dot, .tl-line{
+    transition:background-color var(--m-base) var(--m-ease-in-out),
+               border-color var(--m-base) var(--m-ease-in-out),
+               color var(--m-base) var(--m-ease-in-out),
+               width var(--m-base) var(--m-ease-in-out),
+               transform var(--m-base) var(--m-ease-in-out) !important;
+  }
+
+  /* ---- toggle switches ---- */
+  .switch{transition:background-color var(--m-base) var(--m-ease-in-out), border-color var(--m-base) var(--m-ease-in-out) !important;}
+  .switch::after{transition:transform var(--m-base) var(--m-spring) !important;}
+
+  /* ---- toast ---- */
+  .toast{transition:opacity var(--m-base) var(--m-ease-out), transform var(--m-base) var(--m-spring) !important;}
+
+  /* ---- drawer / overlays ---- */
+  .drawer-overlay{transition:opacity var(--m-base) var(--m-ease-out) !important;}
+  .drawer{transition:transform var(--m-slow) var(--m-ease-out) !important;}
+  .drawer-link{transform:translateX(0);}
+
+  /* ---- accordions (max-height panels) ---- */
+  .saved-list, .sum-items{transition:max-height var(--m-slow) var(--m-ease-in-out) !important;}
+  .saved-toggle .chev{transition:transform var(--m-base) var(--m-ease-in-out) !important;}
+
+  /* ---- inline validation / promo messages ---- */
+  .promo-msg.ok, .promo-msg.err, .field-err{animation:m-fade-up var(--m-fast) var(--m-ease-out);}
+
+  /* ---- tab panel crossfade ---- */
+  .tabpanel.active{animation:m-fade-up var(--m-base) var(--m-ease-out);}
+  .gallery-slide{transition:opacity var(--m-base) var(--m-ease-out) !important;}
+
+  /* ---- success / confirmation modal ---- */
+  .success-overlay.open{animation:m-fade-in var(--m-base) var(--m-ease-out);}
+  .success-card{animation:m-modal-in var(--m-slow) var(--m-ease-out) !important;}
+
+  /* ---- reveal-on-scroll (generic, used by .reveal + .m-reveal) ---- */
+  .reveal, .m-reveal{
+    opacity:0; transform:translateY(var(--m-reveal-dist));
+    transition:opacity var(--m-scroll-dur) var(--m-scroll-ease), transform var(--m-scroll-dur) var(--m-scroll-ease) !important;
+    will-change:transform, opacity;
+  }
+  .reveal.in, .m-reveal.in{opacity:1; transform:translateY(0) translateX(0);}
+
+  /* directional variants for scroll-reveal — assigned automatically by JS for visual variety */
+  .m-reveal-d{transform:translateY(calc(var(--m-reveal-dist) * -1));}
+  .m-reveal-l{transform:translateX(calc(var(--m-reveal-dist) * -1.6));}
+  .m-reveal-r{transform:translateX(calc(var(--m-reveal-dist) * 1.6));}
+
+  /* icon pop-in: small scale + fade for decorative icons inside revealed cards */
+  .m-icon-pop{
+    opacity:0; transform:scale(0.8);
+    transition:opacity var(--m-base) var(--m-ease-out), transform var(--m-base) var(--m-spring) !important;
+    display:inline-block; will-change:transform, opacity;
+  }
+  .m-icon-pop.in{opacity:1; transform:scale(1);}
+
+  @media (max-width:640px){
+    :root{ --m-reveal-dist:12px; --m-scroll-dur:380ms; }
+  }
+
+  /* ---- list add/remove ---- */
+  .fav-card.removing, .cart-item.removing, .order-card.removing, .saved-item.removing{
+    transition:transform var(--m-base) var(--m-ease-in), opacity var(--m-base) var(--m-ease-in) !important;
+  }
+  .m-enter{animation:m-fade-up var(--m-base) var(--m-ease-out);}
+
+  @keyframes m-fade-up{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes m-fade-in{from{opacity:0;} to{opacity:1;}}
+  @keyframes m-modal-in{from{opacity:0; transform:scale(.96);} to{opacity:1; transform:scale(1);}}
+  @keyframes m-nav-in{from{opacity:0; transform:translateY(-14px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes m-body-in{from{opacity:0;} to{opacity:1;}}
+
+  /* ---- page load: navbar entrance + whole-page fade-in ---- */
+  header.top{animation:m-nav-in .55s var(--m-ease-out) both;}
+  body{animation:m-body-in var(--m-slow) var(--m-ease-out) both;}
+
+  /* ---- page-to-page transition: fade the current page out before navigating away ---- */
+  body.m-page-exit{opacity:0 !important; transition:opacity 180ms var(--m-ease-in) !important; pointer-events:none;}
+
+  /* ---- slim top loading indicator (only shown briefly while a page navigation is in flight) ---- */
+  .m-loadbar{
+    position:fixed; top:0; right:0; left:0; height:2.5px; z-index:999;
+    background:linear-gradient(90deg, var(--accent-2), var(--accent));
+    transform:scaleX(0); transform-origin:right;
+    opacity:0; pointer-events:none;
+    transition:transform .45s var(--m-ease-out), opacity .2s var(--m-ease-out);
+  }
+  .m-loadbar.show{opacity:1; transform:scaleX(.72);}
+  .m-loadbar.done{opacity:0; transform:scaleX(1); transition:transform .2s var(--m-ease-out), opacity .3s ease .15s;}
+
+  /* ---- scroll progress bar: fills as the user scrolls down the page ---- */
+  .m-scrollbar{
+    position:fixed; top:0; right:0; left:0; height:2.5px; z-index:997; pointer-events:none;
+    background:rgba(128,128,128,0.12);
+  }
+  .m-scrollbar-fill{
+    height:100%; width:100%; transform:scaleX(0); transform-origin:right;
+    background:linear-gradient(90deg, var(--accent-2), var(--accent));
+    transition:transform 80ms linear;
+    will-change:transform;
+  }
+
+  /* ---- hero parallax: background media + decorative glows drift slightly vs. scroll ---- */
+  .hero{ --pz:0px; }
+  .hero-media-wrap img{ transform:translate(-50%,-50%) translateY(var(--pz,0px)) !important; }
+  .hero::before{ transform:translateY(calc(var(--pz,0px) * 0.7)); }
+  .hero::after{ transform:translateY(calc(var(--pz,0px) * -0.7)); }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration:0.01ms !important; animation-iteration-count:1 !important;
+      transition-duration:0.01ms !important; scroll-behavior:auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-row">
+    <a class="icon-btn" href="speed-shop.html" aria-label="رجوع">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="16 4 8 12 16 20"/></svg>
+    </a>
+    <div class="page-title">المفضلة<small id="countLabel">0 منتج</small></div>
+    <div class="top-spacer"></div>
+    <button class="icon-btn theme-toggle" id="themeToggle" aria-label="الوضع الليلي/النهاري">
+      <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+    
+    <button class="clear-btn" id="clearBtn">إفراغ الكل</button>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="fav-grid" id="favGrid"></div>
+    <div class="empty-state" id="emptyState">
+      <span class="em">🤍</span>
+      <h3>مفضلتك فارغة</h3>
+      <p>اضغط على أيقونة القلب في أي منتج عشان تحفظه هون وترجعله بسهولة.</p>
+      <a class="btn btn-primary" href="speed-shop.html">🛍️ تصفّح المنتجات</a>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast">✓ تمت إضافة المنتج للسلة</div>
+
+<script>
+  let favorites = [
+    {id:1, store:'تك زون', em:'🎧', name:'سماعة لاسلكية عالية الجودة بإلغاء الضوضاء', price:145, old:190, inStock:true},
+    {id:2, store:'تك زون', em:'⌚', name:'ساعة ذكية بشاشة لمس ومراقبة اللياقة', price:340, old:420, inStock:true},
+    {id:3, store:'ستايل هب', em:'👟', name:'حذاء رياضي مريح للمشي اليومي', price:220, old:280, inStock:true},
+    {id:4, store:'بيوتي لاين', em:'🧴', name:'مجموعة عناية بالبشرة الطبيعية', price:130, old:null, inStock:false},
+    {id:5, store:'ترافل جو', em:'🎒', name:'حقيبة ظهر مقاومة للماء', price:95, old:null, inStock:true}
+  ];
+
+  const fmt = n => `${n.toLocaleString('ar')}₪`;
+
+  function render(){
+    const grid = document.getElementById('favGrid');
+    const emptyState = document.getElementById('emptyState');
+    document.getElementById('countLabel').textContent = `${favorites.length} منتج`;
+    document.getElementById('clearBtn').style.display = favorites.length ? 'block' : 'none';
+
+    if(favorites.length === 0){
+      grid.innerHTML = '';
+      emptyState.classList.add('show');
+      return;
+    }
+    emptyState.classList.remove('show');
+
+    grid.innerHTML = favorites.map(f => `
+      <div class="fav-card" data-id="${f.id}">
+        <button class="fav-remove" data-action="remove" data-id="${f.id}" aria-label="حذف من المفضلة">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>
+        </button>
+        <a href="product-detail.html">
+          <div class="fav-media">${f.em}</div>
+        </a>
+        <div class="fav-store">🏪 ${f.store}</div>
+        <div class="fav-name">${f.name}</div>
+        <div class="fav-price-row">
+          <span class="fav-price">${fmt(f.price)}</span>
+          ${f.old ? `<span class="fav-old">${fmt(f.old)}</span>` : ''}
+        </div>
+        <div class="fav-stock ${f.inStock ? 'in' : 'out'}">${f.inStock ? '✓ متوفر' : '✕ نفد المخزون'}</div>
+        <button class="fav-add" data-action="add" data-id="${f.id}" ${f.inStock ? '' : 'disabled'}>
+          🛒 ${f.inStock ? 'أضف للسلة' : 'غير متوفر'}
+        </button>
+      </div>
+    `).join('');
+  }
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  document.getElementById('favGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    e.preventDefault();
+    const id = Number(btn.dataset.id);
+    const action = btn.dataset.action;
+    if(action === 'remove'){
+      const card = btn.closest('.fav-card');
+      card.classList.add('removing');
+      setTimeout(() => {
+        favorites = favorites.filter(f => f.id !== id);
+        render();
+      }, 200);
+    }
+    if(action === 'add'){
+      showToast('✓ تمت إضافة المنتج للسلة');
+    }
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if(favorites.length === 0) return;
+    favorites = [];
+    render();
+  });
+
+  render();
+</script>
+<script>
+  (function(){
+    var btn = document.getElementById('themeToggle');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      var next = isLight ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      try{ localStorage.setItem('speedShopTheme', next); }catch(e){}
+    });
+  })();
+</script>
+<script>
+(function(){
+  // Enables :active styles to fire reliably on iOS Safari
+  document.addEventListener('touchstart', function(){}, {passive:true});
+
+  // Scroll-reveal: adds directional variety + per-group stagger to cards/sections
+  // (down for headings, left/right for paired cards, up for the rest), plus a
+  // gentle pop-in for icons inside them. Also covers elements already tagged
+  // with .reveal/.m-reveal so the whole page stays visually consistent.
+  var sel = '.order-card, .addr-card, .rp-card, .why-card, .t-card, .fav-card, .rider-card, .map-card, .stat-card, .section, .cart-item, .saved-item, .page-title, .p-title, .section-head, .section-label, .hero, .hero-stats, .stats-row, .cat-card, .p-card, .offer-band';
+  var downSel = '.section-head, .section-label, .page-title, .p-title';
+  var sideSel = '.addr-card, .rp-card, .rider-card, .map-card, .fav-card';
+  var iconHostSel = '.why-card, .cat-card, .t-card, .stat-card';
+  var all = Array.prototype.slice.call(document.querySelectorAll(sel));
+  if('IntersectionObserver' in window && all.length){
+    var parentIdx = new Map();
+    var parentSide = new Map();
+    all.forEach(function(el){
+      if(!el.classList.contains('reveal') && !el.classList.contains('m-reveal')){
+        el.classList.add('m-reveal');
+      }
+      if(el.matches(downSel)){
+        el.classList.add('m-reveal-d');
+      } else if(el.matches(sideSel)){
+        var side = parentSide.get(el.parentElement) || 0;
+        el.classList.add(side % 2 === 0 ? 'm-reveal-r' : 'm-reveal-l');
+        parentSide.set(el.parentElement, side + 1);
+      }
+      var idx = parentIdx.get(el.parentElement) || 0;
+      el.style.transitionDelay = (Math.min(idx, 5) * 100) + 'ms';
+      parentIdx.set(el.parentElement, idx + 1);
+    });
+    var mio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('in');
+          mio.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.12});
+    all.forEach(function(el){ mio.observe(el); });
+
+    var icons = [];
+    all.forEach(function(el){
+      if(el.matches(iconHostSel)){
+        var em = el.querySelector('.em');
+        if(em) icons.push(em);
+      }
+    });
+    icons.forEach(function(el, i){
+      el.classList.add('m-icon-pop');
+      el.style.transitionDelay = (Math.min(i % 6, 5) * 100 + 80) + 'ms';
+      mio.observe(el);
+    });
+  }
+})();
+</script>
+<script>
+(function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bar = document.createElement('div');
+  bar.className = 'm-loadbar';
+  document.body.appendChild(bar);
+
+  // Shared helper so JS-triggered redirects (buy now, checkout, logout...) use the
+  // same soft fade + loading cue as normal link navigation.
+  window.mGoTo = function(href, delay){
+    if(!href) return;
+    bar.classList.remove('done');
+    void bar.offsetWidth;
+    bar.classList.add('show');
+    if(reduceMotion){ window.location.href = href; return; }
+    document.body.classList.add('m-page-exit');
+    setTimeout(function(){ window.location.href = href; }, delay || 180);
+  };
+
+  // Intercept clicks on internal .html links to play a light fade-out before leaving.
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href]');
+    if(!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var href = a.getAttribute('href');
+    if(!href || href.charAt(0) === '#' || a.target === '_blank' || a.hasAttribute('download')) return;
+    if(/^([a-z]+:)?\/\//i.test(href) || /^(tel|sms|mailto|whatsapp):/i.test(href)) return;
+    if(href.indexOf('.html') === -1) return;
+    e.preventDefault();
+    window.mGoTo(href);
+  }, true);
+})();
+</script>
+<script>
+(function(){
+  // Scroll progress bar
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var track = document.createElement('div');
+  track.className = 'm-scrollbar';
+  var fill = document.createElement('div');
+  fill.className = 'm-scrollbar-fill';
+  track.appendChild(fill);
+  document.body.appendChild(track);
+  var ticking = false;
+  function updateProgress(){
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - doc.clientHeight;
+    var pct = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0;
+    fill.style.transform = 'scaleX(' + pct + ')';
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if(!ticking){ requestAnimationFrame(updateProgress); ticking = true; }
+  }, {passive:true});
+  updateProgress();
+
+  // Hero parallax: only runs while the hero is near the viewport, and skipped
+  // entirely on reduced-motion or small/touch screens to keep things light.
+  var hero = document.querySelector('.hero');
+  var isSmall = window.matchMedia('(max-width:640px)').matches;
+  if(hero && !reduceMotion && !isSmall && 'IntersectionObserver' in window){
+    var active = false;
+    function updateParallax(){
+      var rect = hero.getBoundingClientRect();
+      var mid = rect.top + rect.height / 2 - window.innerHeight / 2;
+      var pz = Math.max(-24, Math.min(24, mid * -0.06));
+      hero.style.setProperty('--pz', pz + 'px');
+      if(active) requestAnimationFrame(updateParallax);
+    }
+    var hio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting && !active){
+          active = true;
+          requestAnimationFrame(updateParallax);
+        } else if(!e.isIntersecting){
+          active = false;
+        }
+      });
+    });
+    hio.observe(hero);
+  }
+})();
+</script>
+</body>
+</html>
