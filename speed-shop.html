@@ -7,8 +7,16 @@
 <title>SPEED SHOP — سرعتك في التسوق، سهولتك في التوصيل</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Fredoka:wght@400;500;600;700&family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Pacifico&display=swap" rel="stylesheet">
 <style>
+  @font-face{
+    font-family:'CairoDigits';
+    font-style:normal;
+    font-weight:200 1000;
+    font-display:swap;
+    src:url(https://cdn.jsdelivr.net/fontsource/fonts/cairo:vf@5.3.0/latin-wght-normal.woff2) format('woff2-variations');
+    unicode-range:U+0030-0039, U+0660-0669, U+06F0-06F9;
+  }
   :root{
     --bg:#0A0D1A;
     --surface:#12162A;
@@ -28,7 +36,7 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
   body{
-    font-family:'Cairo', sans-serif;
+    font-family:'CairoDigits', 'Fredoka', 'Baloo Bhaijaan 2', sans-serif;
     background:var(--bg);
     color:var(--text);
     line-height:1.6;
@@ -74,7 +82,7 @@
     -webkit-background-clip:text; background-clip:text; color:transparent;
   }
   .logo-word .lw2{
-    font-family:'Cairo', sans-serif; font-weight:800; letter-spacing:2px;
+    font-family:'Fredoka', 'Cairo', sans-serif; font-weight:800; letter-spacing:2px;
     font-size:0.72rem; color:var(--text-dim); margin-top:1px; text-transform:uppercase;
   }
   .logo-word small{display:block; font-size:0.56rem; font-weight:600; color:var(--text-dim); margin-top:4px; letter-spacing:0.2px;}
@@ -759,8 +767,7 @@
       <video src="vad155.mp4" autoplay muted loop playsinline></video>
       <div class="hero-media-overlay"></div>
     </div>
-    <span class="eyebrow-pill">⚡ التوصيل خلال 45 دقيقة داخل غزة</span>
-    <h1>تسوّق بسهولة<br><span>ونحن نوصّل إليك</span></h1>
+    <h1>تسوّق براحتك<br><span>وخلي التوصيل علينا</span></h1>
     <p>اكتشف مجموعة واسعة من المنتجات بأسعار منافسة، واطلب ما تحتاجه بسهولة من خلال منصة SPEED SHOP.</p>
     <div class="hero-ctas">
       <a class="btn btn-primary" href="#categories">🛒 ابدأ التسوق</a>
