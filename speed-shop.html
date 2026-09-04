@@ -131,6 +131,58 @@
     border-bottom:1px solid var(--line);
   }
   .drawer-link .em{font-size:1.15rem; width:24px; text-align:center;}
+  .drawer-sep{height:1px; background:var(--line); margin:10px 0;}
+  .admin-link{
+    width:100%; background:none; text-align:right;
+    color:var(--text-dim); font-family:inherit;
+  }
+  .admin-link:hover, .admin-link:active{color:var(--coral);}
+
+  /* ===== ADMIN LOGIN MODAL ===== */
+  .admin-modal-overlay{
+    position:fixed; inset:0; background:rgba(5,6,14,0.65);
+    backdrop-filter:blur(3px);
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+    z-index:190;
+  }
+  .admin-modal-overlay.open{opacity:1; pointer-events:auto;}
+  .admin-modal{
+    position:fixed; top:50%; left:50%; width:92%; max-width:380px;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius-lg); padding:28px 24px 24px;
+    z-index:195; text-align:center;
+    transform:translate(-50%,-50%) scale(0.92); opacity:0; pointer-events:none;
+    transition:transform .25s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+    box-shadow:0 20px 60px -15px rgba(0,0,0,0.5);
+  }
+  .admin-modal.open{transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto;}
+  .admin-modal-close{
+    position:absolute; top:14px; left:14px; width:32px; height:32px;
+    border-radius:9px; background:var(--surface-2); color:var(--text);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .admin-modal-icon{font-size:2rem; margin-bottom:6px;}
+  .admin-modal h3{font-size:1.15rem; font-weight:800; margin-bottom:6px;}
+  .admin-modal-sub{color:var(--text-dim); font-size:0.85rem; margin-bottom:18px; line-height:1.5;}
+  .admin-field{display:block; text-align:right; margin-bottom:14px;}
+  .admin-field span{display:block; font-size:0.82rem; color:var(--text-dim); margin-bottom:6px; font-weight:600;}
+  .admin-field input{
+    width:100%; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:var(--radius-sm); padding:12px 14px; color:var(--text);
+    font-family:inherit; font-size:0.95rem;
+  }
+  .admin-field input:focus{outline:none; border-color:var(--accent);}
+  .admin-error{
+    display:none; color:#FF5D6C; font-size:0.82rem; font-weight:600;
+    margin:-6px 0 14px; text-align:right;
+  }
+  .admin-error.show{display:block;}
+  .admin-submit{
+    width:100%; padding:13px; border-radius:var(--radius-sm);
+    background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    color:#fff; font-weight:800; font-size:0.98rem;
+  }
+  .admin-submit:active{transform:scale(0.98);}
 
   /* ===== HERO ===== */
   .hero{
@@ -139,7 +191,8 @@
   .hero-media-wrap{
     position:absolute; inset:0; z-index:0; overflow:hidden;
   }
-  .hero-media-wrap img{
+  .hero-media-wrap img,
+  .hero-media-wrap video{
     position:absolute; top:50%; left:50%; width:100%; height:100%;
     object-fit:cover; transform:translate(-50%,-50%);
   }
@@ -602,7 +655,8 @@
 
   /* ---- hero parallax: background media + decorative glows drift slightly vs. scroll ---- */
   .hero{ --pz:0px; }
-  .hero-media-wrap img{ transform:translate(-50%,-50%) translateY(var(--pz,0px)) !important; }
+  .hero-media-wrap img,
+  .hero-media-wrap video{ transform:translate(-50%,-50%) translateY(var(--pz,0px)) !important; }
   .hero::before{ transform:translateY(calc(var(--pz,0px) * 0.7)); }
   .hero::after{ transform:translateY(calc(var(--pz,0px) * -0.7)); }
 
@@ -671,13 +725,38 @@
   <a class="drawer-link" href="account.html"><span class="em">👤</span> حسابي</a>
   <a class="drawer-link" href="#why"><span class="em">ℹ️</span> من نحن</a>
   <a class="drawer-link" href="#faq"><span class="em">📞</span> تواصل معنا</a>
+  <div class="drawer-sep"></div>
+  <button type="button" class="drawer-link admin-link" id="adminOpenBtn"><span class="em">🛠️</span> المسؤول</button>
 </aside>
+
+<!-- ADMIN LOGIN MODAL -->
+<div class="admin-modal-overlay" id="adminModalOverlay"></div>
+<div class="admin-modal" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+  <button type="button" class="admin-modal-close" id="adminModalClose" aria-label="إغلاق">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="admin-modal-icon">🛠️</div>
+  <h3 id="adminModalTitle">دخول المسؤول</h3>
+  <p class="admin-modal-sub">هذه الخانة مخصصة للموجه العام لمنصة SPEED SHOP</p>
+  <form id="adminLoginForm" novalidate>
+    <label class="admin-field">
+      <span>اسم المستخدم</span>
+      <input type="text" id="adminUser" autocomplete="username" placeholder="ادخل اسم المستخدم">
+    </label>
+    <label class="admin-field">
+      <span>كلمة السر</span>
+      <input type="password" id="adminPass" autocomplete="current-password" placeholder="ادخل كلمة السر">
+    </label>
+    <p class="admin-error" id="adminError">اسم المستخدم أو كلمة السر غير صحيحة</p>
+    <button type="submit" class="admin-submit">دخول لوحة التحكم</button>
+  </form>
+</div>
 
 <main id="home">
   <!-- HERO -->
   <section class="hero">
     <div class="hero-media-wrap">
-      <img src="sad101.jpg" alt="خلفية SPEED SHOP">
+      <video src="vad155.mp4" autoplay muted loop playsinline></video>
       <div class="hero-media-overlay"></div>
     </div>
     <span class="eyebrow-pill">⚡ التوصيل خلال 45 دقيقة داخل غزة</span>
@@ -853,6 +932,48 @@
   closeBtn.addEventListener('click', closeDrawer);
   overlay.addEventListener('click', closeDrawer);
   document.querySelectorAll('.drawer-link').forEach(a => a.addEventListener('click', closeDrawer));
+
+  // Admin login modal
+  const ADMIN_USER = 'speed.test';
+  const ADMIN_PASS = 'speed1020$';
+  const adminOpenBtn = document.getElementById('adminOpenBtn');
+  const adminModal = document.getElementById('adminModal');
+  const adminModalOverlay = document.getElementById('adminModalOverlay');
+  const adminModalClose = document.getElementById('adminModalClose');
+  const adminLoginForm = document.getElementById('adminLoginForm');
+  const adminUserInput = document.getElementById('adminUser');
+  const adminPassInput = document.getElementById('adminPass');
+  const adminError = document.getElementById('adminError');
+
+  function openAdminModal(){
+    closeDrawer();
+    adminModal.classList.add('open');
+    adminModalOverlay.classList.add('open');
+    setTimeout(() => adminUserInput.focus(), 200);
+  }
+  function closeAdminModal(){
+    adminModal.classList.remove('open');
+    adminModalOverlay.classList.remove('open');
+    adminError.classList.remove('show');
+    adminLoginForm.reset();
+  }
+  adminOpenBtn.addEventListener('click', openAdminModal);
+  adminModalClose.addEventListener('click', closeAdminModal);
+  adminModalOverlay.addEventListener('click', closeAdminModal);
+
+  adminLoginForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const u = adminUserInput.value.trim();
+    const p = adminPassInput.value;
+    if(u === ADMIN_USER && p === ADMIN_PASS){
+      sessionStorage.setItem('speedShopAdminAuth', '1');
+      window.location.href = 'admin.html';
+    } else {
+      adminError.classList.add('show');
+      adminPassInput.value = '';
+      adminPassInput.focus();
+    }
+  });
 
   // FAQ accordion
   document.querySelectorAll('.faq-q').forEach(btn => {
